@@ -1,3 +1,3 @@
-### Capstone ###
+## Capstone ##
 
 The capstone is a class and final project for the Masters of Data Science and Analytics program at Howard University. This program began in 2023 and is rapidly evolving into a very independent and important part of Howard University’s post graduation opportunities. The Capstone project and Github assignments are the final requirements for the students of the program. The capstone project is an opportunity for these new scientists to show that they understand the material taught. More importantly it's an opportunity to act as a resume using Github. Using this platform allows students to put their best python code, data analysis, statistics, visualizations, machine learning models and more all in one place that's easily accessible. 
