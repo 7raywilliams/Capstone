@@ -1,0 +1,417 @@
+## R studio code ##
+
+### PREAMBLE
+### Title : Examining the relationship between age and income in 2012
+### Name: RayShawn Williams
+### Date: March 30, 2024
+### Lab 3
+### Examine the relationship between two variables ##
+
+### research question: Were age and income related in year 2012?
+### data: sample data from the General Social Survey (GSS)
+
+
+# install the tidyverse package
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("tidyselect")
+
+
+
+# load the libraries needed for the analyses
+library(tidyverse)
+library(dplyr)
+library(critstats)
+library(tidyr)
+library(tidyselect)
+
+#view the data
+data(package="critstats")
+?critstats
+?gss_cat
+glimpse(gss_cat)
+view(gss_cat)
+summary(gss_cat)
+
+                                                                      ###Part 2###
+
+                                        ## Cleaning the data  ##
+
+
+#assign year 2012 age and income to gss12
+gss12 <- gss_cat[gss_cat$year == 2012, ]
+
+#Preview gss12
+gss12
+
+
+#summary of 2012
+summary(gss12)
+
+
+
+                                                            ###   GSS12     ###
+
+# Change "rincome" to "income" for personal preference
+gss12 <- gss_cat %>%
+  filter(year == 2012) %>%
+  select(rincome, age) %>%
+  rename(income = rincome)%>%
+  na.omit()
+
+
+# reomve NAs
+gss12 %>% 
+  na.omit()
+
+
+## Drop 'Not applicable', 'Refused, 'Don't Know', and 'No answer' 
+gss12 <- gss12%>%
+  filter(income != "Not applicable",
+         income != "Refused",
+         income !="Don't know",
+         income !="No answer")  %>%
+  droplevels()
+
+
+# View after removing the above
+View(gss12)
+
+
+# Use case_when to recode age into age groups to better compare to the external data I found.
+gss12 <- gss12 %>%
+  mutate(age_group = case_when(
+    age >= 16 & age <= 19 ~ "Under 20",
+    age >= 20 & age <= 24 ~ "20-24",
+    age >= 25 & age <= 34 ~ "25-34",
+    age >= 35 & age <= 44 ~ "35-44",
+    age >= 45 & age <= 54 ~ "45-54",
+    age >= 55 & age <= 64 ~ "55-64",
+    age >= 65 & age <= 74 ~ "65-74",
+    age >= 75 & age <= 84 ~ "75-84",
+    age >= 85 & age <= 94 ~ "85-94"
+  ))
+
+#view Age groups created
+view(gss12$age_group)
+
+
+# Change income to more respectable ranges and try to use only numbers and see if that makes it numeric
+gss12 <- gss12 %>%
+  mutate(income = recode(income,
+                         "Lt $1000" = 999 ,
+                         "$1000 to 2999" = 2999 , 
+                         "$3000 to 3999" = 3999 ,
+                         "$4000 to 4999" = 4999 , 
+                         "$5000 to 5999" = 5999 , 
+                         "$6000 to 6999" = 6999 , 
+                         "$7000 to 7999" = 7999 ,
+                         "$8000 to 9999" = 9999 ,
+                         "$10000 - 14999" = 14999 ,
+                         "$15000 - 19999" = 19999 ,
+                         "$20000 - 24999" = 24999 ,
+                         "$25000 or more" = 25000
+                         
+  ))
+
+# View new income bracket
+view(gss12$income)
+
+# remove any other remaining or new NAs
+gss12$income %>%
+  na.omit()
+
+#View gss12 after changes
+view(gss12)
+
+
+
+# Count the amount of individuals in each group
+gss12%>% count(age_group)
+
+# Count the amount of individuals that fall under each exact age
+gss12%>% count(age)
+
+# Count the amount of individuals that are in each income bracket
+gss12%>% count(income)
+
+
+# Print the resulting dataset to check the results
+print(gss12)
+
+
+
+
+# Group by age_group and income, then count the number of people in each age group under each income bracket
+age_income_counts_12 <- gss12 %>%
+  group_by(age_group, income) %>%
+  count()
+
+# Print the resulting dataset
+view(age_income_counts_12)
+
+
+view(gss12)
+
+###      PLOT    ###
+
+# Make x variable age column
+
+x <- gss12$age
+
+# Make y variable income levels
+y <- gss12$income
+
+
+# summarize model to see relationship between age and income
+model <- lm(y ~ x)
+summary(model)
+
+# Plot x and y and use abline to show pattern/relationship
+plot(x,y)
+abline(model, col='blue')
+
+
+
+
+# PLot X
+hist(x)
+
+# PLot Y
+hist(y)
+
+
+
+
+
+###Part 1 Report###
+
+## 1.1 
+
+# The dataset I selected was the gss_cat dataset. A sample of 
+# sample of categorical variables from the General Social survey
+
+
+##1.2
+
+# The two variables that'll be analyzed are 'age' and 'income'
+
+
+## 1.3 
+
+# Were age and income related in year 2012
+
+
+
+## 1.4 
+
+# My plan is to mutate a new column of age groups into decades to be able analyze the data in age groups and 
+# compare other out-sourced data. Also restructure income ranges to clearly show that as your age climbs your income 
+# would grow as in 2012 before the era of social media influence. It will show how people started from the bottom of 
+# corporations and worked their way to the top along with the fact that before age 34 and after age 64 probability 
+# of making $25,000 annually is below 50%. Also want to use some charts and data from out sources.
+
+# 1.5 
+
+# Some limitations can be sample error and geographic locations.
+
+### Part 2 Report ###
+
+# 1.6 
+
+# My data did contain missing vaules and I dropped them.
+
+#1.7
+
+
+
+## Cleaning the data  ##
+
+
+#assign year 2012 age and income to gss12
+gss12 <- gss_cat[gss_cat$year == 2012, ]
+
+#Preview gss12
+gss12
+
+
+#summary of 2012
+summary(gss12)
+
+
+
+###   GSS12     ###
+
+# Change "rincome" to "income" for personal preference
+gss12 <- gss_cat %>%
+  filter(year == 2012) %>%
+  select(rincome, age) %>%
+  rename(income = rincome)%>%
+  na.omit()
+
+
+# reomve NAs
+gss12 %>% 
+  na.omit()
+
+
+## Drop 'Not applicable', 'Refused, 'Don't Know', and 'No answer' 
+gss12 <- gss12%>%
+  filter(income != "Not applicable",
+         income != "Refused",
+         income !="Don't know",
+         income !="No answer")  %>%
+  droplevels()
+
+
+# View after removing the above
+View(gss12)
+
+
+# Use case_when to recode age into age groups to better compare to the external data I found.
+gss12 <- gss12 %>%
+  mutate(age_group = case_when(
+    age >= 16 & age <= 19 ~ "Under 20",
+    age >= 20 & age <= 24 ~ "20-24",
+    age >= 25 & age <= 34 ~ "25-34",
+    age >= 35 & age <= 44 ~ "35-44",
+    age >= 45 & age <= 54 ~ "45-54",
+    age >= 55 & age <= 64 ~ "55-64",
+    age >= 65 & age <= 74 ~ "65-74",
+    age >= 75 & age <= 84 ~ "75-84",
+    age >= 85 & age <= 94 ~ "85-94"
+  ))
+
+#view Age groups created
+view(gss12$age_group)
+
+
+# Change income to more respectable ranges and try to use only numbers and see if that makes it numeric
+gss12 <- gss12 %>%
+  mutate(income = recode(income,
+                         "Lt $1000" = 999 ,
+                         "$1000 to 2999" = 2999 , 
+                         "$3000 to 3999" = 3999 ,
+                         "$4000 to 4999" = 4999 , 
+                         "$5000 to 5999" = 5999 , 
+                         "$6000 to 6999" = 6999 , 
+                         "$7000 to 7999" = 7999 ,
+                         "$8000 to 9999" = 9999 ,
+                         "$10000 - 14999" = 14999 ,
+                         "$15000 - 19999" = 19999 ,
+                         "$20000 - 24999" = 24999 ,
+                         "$25000 or more" = 25000
+                         
+  ))
+
+# View new income bracket
+view(gss12$income)
+
+# remove any other remaining or new NAs
+gss12$income %>%
+  na.omit()
+
+#View gss12 after changes
+view(gss12)
+
+
+
+# Count the amount of individuals in each group
+gss12%>% count(age_group)
+
+# Count the amount of individuals that fall under each exact age
+gss12%>% count(age)
+
+# Count the amount of individuals that are in each income bracket
+gss12%>% count(income)
+
+
+# Print the resulting dataset to check the results
+print(gss12)
+
+
+
+
+# Group by age_group and income, then count the number of people in each age group under each income bracket
+age_income_counts_12 <- gss12 %>%
+  group_by(age_group, income) %>%
+  count()
+
+# Print the resulting dataset
+view(age_income_counts_12)
+
+
+view(gss12)
+
+###      PLOT    ###
+
+# Make x variable age column
+
+x <- gss12$age
+
+# Make y variable income levels
+y <- gss12$income
+
+
+# summarize model to see relationship between age and income
+model <- lm(y ~ x)
+summary(model)
+
+# Plot x and y and use abline to show pattern/relationship
+plot(x,y)
+abline(model, col='blue')
+
+
+
+
+# PLot X
+hist(x)
+
+# PLot Y
+hist(y)
+
+
+# 1.8
+  
+#There is a positive correlation between rise in age and income. I also noticed 
+# a decline at or after 50s and 60s probably around age of retirement
+
+
+# 1.9
+
+# My finding relate to my research question and theory because they show relation in age and income. The relation 
+# shown holds true to my theory theory that as people get older their income increases demonstration significant
+#  relations from the p- value and the chart. Even thought the charts may not be the best visual
+# its mainly because the increase in people in certain age groups.
+# after closely analyzing the numbers and ratios you will still see the theory holds true. 
+
+
+                        ###   Data points   ###
+      ## Ratios of people at making over 25,000 annually compared to the amount of people in the age group ##
+
+#AGE GROUP#   #RATIO#
+
+
+# Under 20:    0/16
+
+#20-24:        12/81
+
+#25-34:        136/270
+
+#35-44:        173/260
+
+#45-54:        176/263
+
+#55-64:        112/173
+
+#65-74:        33/63
+
+#75-84:        4/16
+
+
+
+
+# 1.10
+
+# Some limitations can be sample error and geographic locations.
